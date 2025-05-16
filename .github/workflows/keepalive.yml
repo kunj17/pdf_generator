@@ -1,0 +1,39 @@
+name: Keep Alive PDF Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  keep-running:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log start time
+        run: echo "🚀 Starting keep-alive runner at $(date)"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install pdf-lib
+
+      - name: Run PDF job (optional placeholder)
+        run: |
+          echo "🧾 Simulating PDF job (you can plug in logic here)..."
+          sleep 10
+          echo "✅ Finished dummy task."
+
+      - name: Sleep before respawning
+        run: |
+          echo "🕒 Sleeping for 5h 59m (21540s)..."
+          sleep 21540
+
+      - name: Trigger next run of this workflow
+        run: |
+          echo "🔁 Triggering next instance..."
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/keepalive.yml/dispatches \
+            -d '{"ref":"main"}'
