@@ -1,0 +1,11 @@
+{
+  "name": "pdf-generator",
+  "version": "1.0.0",
+  "main": "fill.js",
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  },
+  "scripts": {
+    "start": "node fill.js"
+  }
+}
