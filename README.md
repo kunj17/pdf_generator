@@ -22,4 +22,3 @@ This repo runs a self-respawning GitHub Action every ~6 hours to simulate a fore
 - Integrate with Apps Script
 
 ---
-Built with ❤️ by [you].
