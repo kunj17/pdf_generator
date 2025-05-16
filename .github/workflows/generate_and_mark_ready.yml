@@ -1,0 +1,74 @@
+name: Generate Waiver PDF and Update Status Ledger
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Participant Name"
+        required: true
+      initials:
+        description: "Initials"
+        required: true
+      is_minor:
+        description: "Is Minor (true/false)"
+        required: true
+      unique_id:
+        description: "Unique PDF ID"
+        required: true
+      family_id:
+        description: "Family Tag ID"
+        required: true
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install pdf-lib
+
+      - name: Generate PDF
+        run: |
+          node fill.js "$NAME" "$INITIALS" "$IS_MINOR" "$UNIQUE_ID"
+        env:
+          NAME: ${{ github.event.inputs.name }}
+          INITIALS: ${{ github.event.inputs.initials }}
+          IS_MINOR: ${{ github.event.inputs.is_minor }}
+          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+
+      - name: Decrypt status ledger
+        run: |
+          gpg --batch --yes --passphrase "$PASSPHRASE" --output ready/pdf_status.json --decrypt ready/pdf_status.json.enc
+        env:
+          PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
+
+      - name: Update Ledger File
+        run: |
+          node updateStatus.js "$FAMILY_ID" "$UNIQUE_ID" "$NAME"
+        env:
+          FAMILY_ID: ${{ github.event.inputs.family_id }}
+          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+          NAME: ${{ github.event.inputs.name }}
+
+      - name: Re-encrypt status ledger
+        run: |
+          gpg --batch --yes --passphrase "$PASSPHRASE" --symmetric --cipher-algo AES256 --output ready/pdf_status.json.enc ready/pdf_status.json
+        env:
+          PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
+
+      - name: Commit and Push Updated Ledger
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add ready/pdf_status.json.enc
+          git commit -m "Update ledger for $UNIQUE_ID"
+          git push
+        env:
+          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
