@@ -1,34 +1,4 @@
 {
   "families": {
-    "family_20250517T053612161Z": {
-      "parent_email": "Kunjarpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kunj Patel",
-          "pdf": "Waiver_Kunj Patel_2025-05-17T05:36:12.162Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T05:36:24.282Z"
-    },
-    "family_20250517T060103146Z": {
-      "parent_email": "Kunjarpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kunj Patel",
-          "pdf": "Waiver_Kunj_Patel_20250517T060103147Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T06:01:13.042Z"
-    },
-    "family_20250517T062509707Z": {
-      "parent_email": "Kunjarpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kunj Patel",
-          "pdf": "Waiver_Kunj_Patel_20250517T062509707Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T06:25:24.159Z"
-    }
   }
 }
