@@ -9,7 +9,7 @@ on:
       parent_email:
         description: "Parent Email"
         required: true
-      member_json:
+      members_json:
         description: "JSON array of members (name, initials, is_minor, unique_id)"
         required: true
 
@@ -30,7 +30,7 @@ jobs:
         run: npm install pdf-lib
 
       - name: Write Member JSON to File
-        run: echo '${{ github.event.inputs.member_json }}' > members.json
+        run: echo '${{ github.event.inputs.members_json }}' > members.json
 
       - name: Generate PDFs for Each Member
         run: |
@@ -57,11 +57,11 @@ jobs:
       - name: Add Family to Email Queue
         run: |
           mkdir -p queue
-          node updateStatus.js "$FAMILY_ID" "$PARENT_EMAIL" "$MEMBER_JSON"
+          node updateStatus.js "$FAMILY_ID" "$PARENT_EMAIL" "$MEMBERS_JSON"
         env:
           FAMILY_ID: ${{ github.event.inputs.family_id }}
           PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
-          MEMBER_JSON: ${{ github.event.inputs.member_json }}
+          MEMBERS_JSON: ${{ github.event.inputs.members_json }}
 
       - name: Commit updated Email Queue
         run: |
