@@ -1,20 +1,8 @@
-name: Generate Waiver PDF and Add to Email Queue
+name: Generate Waiver PDFs and Add to Email Queue
 
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: "Participant Name"
-        required: true
-      initials:
-        description: "Initials"
-        required: true
-      is_minor:
-        description: "Is Minor (true/false)"
-        required: true
-      unique_id:
-        description: "Unique PDF ID"
-        required: true
       family_id:
         description: "Family Tag ID"
         required: true
@@ -22,11 +10,11 @@ on:
         description: "Parent Email"
         required: true
       member_json:
-        description: "JSON array of member objects"
+        description: "JSON array of members (name, initials, is_minor, unique_id)"
         required: true
 
 jobs:
-  generate-pdf-and-queue:
+  generate-pdfs-and-queue:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,35 +29,28 @@ jobs:
       - name: Install Dependencies
         run: npm install pdf-lib
 
-      - name: Debug Inputs
-        run: |
-          echo "NAME=$NAME"
-          echo "INITIALS=$INITIALS"
-          echo "IS_MINOR=$IS_MINOR"
-          echo "UNIQUE_ID=$UNIQUE_ID"
-        env:
-          NAME: ${{ github.event.inputs.name }}
-          INITIALS: ${{ github.event.inputs.initials }}
-          IS_MINOR: ${{ github.event.inputs.is_minor }}
-          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+      - name: Write Member JSON to File
+        run: echo '${{ github.event.inputs.member_json }}' > members.json
 
-      - name: Generate Individual PDF (if applicable)
-        if: github.event.inputs.unique_id != 'NA'
+      - name: Generate PDFs for Each Member
         run: |
-          node fill.js "$NAME" "$INITIALS" "$IS_MINOR" "$UNIQUE_ID"
-        env:
-          NAME: ${{ github.event.inputs.name }}
-          INITIALS: ${{ github.event.inputs.initials }}
-          IS_MINOR: ${{ github.event.inputs.is_minor }}
-          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+          node -e "
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            const members = JSON.parse(fs.readFileSync('members.json', 'utf8'));
+            for (const m of members) {
+              if (!m.name || !m.initials || !m.unique_id) continue;
+              console.log('🖨 Generating for:', m.name);
+              execSync(\`node fill.js '\${m.name}' '\${m.initials}' \${m.is_minor} '\${m.unique_id}'\`, { stdio: 'inherit' });
+            }
+          "
 
-      - name: Commit generated PDF (if applicable)
-        if: github.event.inputs.unique_id != 'NA'
+      - name: Commit PDFs
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
-          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
+          git add filled/*.pdf
+          git commit -m "🧾 Add waiver PDFs for ${{ github.event.inputs.family_id }}" || echo "Nothing to commit"
           git pull --rebase
           git push
 
@@ -82,11 +63,11 @@ jobs:
           PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
           MEMBER_JSON: ${{ github.event.inputs.member_json }}
 
-      - name: Commit updated email queue
+      - name: Commit updated Email Queue
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add queue/ready_to_email.json
-          git commit -m "🆕 Add ${{ github.event.inputs.family_id }} to email queue"
+          git commit -m "📩 Queue family ${{ github.event.inputs.family_id }} for email" || echo "Nothing to commit"
           git pull --rebase
           git push
