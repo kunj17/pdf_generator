@@ -43,6 +43,15 @@ jobs:
           INITIALS: ${{ github.event.inputs.initials }}
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+          
+      - name: Commit generated PDF to repo
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
+          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
+          git push
+
 
       - name: Commit the PDF to the repo
         run: |
