@@ -66,7 +66,7 @@ jobs:
       - name: Add Family to Email Queue
         run: |
           mkdir -p queue
-          node updateQueueStatus.js "$FAMILY_ID" "$PARENT_EMAIL" "$MEMBER_JSON"
+          node updateStatus.js "$FAMILY_ID" "$PARENT_EMAIL" "$MEMBER_JSON"
         env:
           FAMILY_ID: ${{ github.event.inputs.family_id }}
           PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
