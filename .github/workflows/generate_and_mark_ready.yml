@@ -54,9 +54,11 @@ jobs:
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
+          git pull origin main --rebase  # ✅ Add this line
           git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
           git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
           git push
+
 
       - name: Add Family to Email Queue
         run: |
@@ -72,6 +74,8 @@ jobs:
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
+          git pull origin main --rebase  # ✅ Add this line
           git add queue/ready_to_email.json
           git commit -m "🆕 Add ${{ github.event.inputs.family_id }} to email queue"
           git push
+
