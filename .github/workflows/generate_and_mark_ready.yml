@@ -70,6 +70,7 @@ jobs:
           FAMILY_ID: ${{ github.event.inputs.family_id }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
           NAME: ${{ github.event.inputs.name }}
+          PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
 
       - name: Encrypt ledger with XOR+Base64
         run: node encryptJson.js
