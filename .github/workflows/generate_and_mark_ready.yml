@@ -22,6 +22,7 @@ on:
 jobs:
   generate-pdf:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -42,6 +43,12 @@ jobs:
           INITIALS: ${{ github.event.inputs.initials }}
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+
+      - name: Upload filled PDF as GitHub Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: waiver-${{ github.event.inputs.unique_id }}
+          path: filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
 
       - name: Ensure Ledger JSON Exists
         run: |
