@@ -1,17 +1,3 @@
 {
-  "families": {
-    "family_20250517T080651572Z": {
-      "parent_email": "kunjarpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kunj2 Patel",
-          "initials": "KP",
-          "is_minor": false,
-          "unique_id": "Kunj2_Patel_20250517T080651576Z_0",
-          "pdf": "Waiver_Kunj2_Patel_20250517T080651576Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T08:07:09.153Z"
-    }
-  }
+  "families": {}
 }
