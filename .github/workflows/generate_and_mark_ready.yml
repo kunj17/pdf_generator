@@ -43,11 +43,12 @@ jobs:
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
 
-      - name: Decrypt status ledger
+      - name: Ensure Ledger JSON Exists
         run: |
-          gpg --batch --yes --passphrase "$PASSPHRASE" --output ready/pdf_status.json --decrypt ready/pdf_status.json.enc
-        env:
-          PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
+          mkdir -p ready
+          if [ ! -f ready/pdf_status.json ]; then
+            echo '{ "families": {} }' > ready/pdf_status.json
+          fi
 
       - name: Update Ledger File
         run: |
@@ -57,11 +58,10 @@ jobs:
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
           NAME: ${{ github.event.inputs.name }}
 
-      - name: Re-encrypt status ledger
-        run: |
-          gpg --batch --yes --passphrase "$PASSPHRASE" --symmetric --cipher-algo AES256 --output ready/pdf_status.json.enc ready/pdf_status.json
+      - name: Encrypt ledger with XOR+Base64
+        run: node encryptJson.js
         env:
-          PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
+          LEDGER_PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
 
       - name: Commit and Push Updated Ledger
         run: |
