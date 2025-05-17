@@ -29,19 +29,6 @@
         }
       ],
       "timestamp": "2025-05-17T06:25:24.159Z"
-    },
-    "family_20250517T070717019Z": {
-      "parent_email": "kunjarpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kunj Patel",
-          "initials": "KP",
-          "is_minor": false,
-          "unique_id": "Kunj_Patel_20250517T070717026Z_0",
-          "pdf": "Waiver_Kunj_Patel_20250517T070717026Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T07:07:32.154Z"
     }
   }
 }
