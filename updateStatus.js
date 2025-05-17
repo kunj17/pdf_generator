@@ -78,20 +78,69 @@
 // ===== updateQueueStatus.js =====
 // Usage: node updateQueueStatus.js <familyId> <parentEmail> '<memberJsonArrayString>'
 
+// const fs = require('fs');
+// const path = require('path');
+
+// const args = process.argv.slice(2);
+// const familyId = args[0];
+// const parentEmail = args[1];
+// const memberJsonString = args[2];
+
+// const members = JSON.parse(memberJsonString);
+// const now = new Date().toISOString();
+
+// const queuePath = path.join(__dirname, 'queue', 'ready_to_email.json');
+
+// // Load queue
+// let data = { families: {} };
+// if (fs.existsSync(queuePath)) {
+//   try {
+//     data = JSON.parse(fs.readFileSync(queuePath, 'utf-8'));
+//   } catch (e) {
+//     console.error("❌ Could not parse queue file.");
+//     process.exit(1);
+//   }
+// }
+
+// // Add or update entry
+// data.families[familyId] = {
+//   parent_email: parentEmail,
+//   members,
+//   timestamp: now
+// };
+
+// // Save file
+// fs.writeFileSync(queuePath, JSON.stringify(data, null, 2));
+// console.log(`✅ Added/updated ${familyId} in ready_to_email.json`);
+
+
+
+// ===== updateStatus.js =====
+// Usage: node updateStatus.js <familyId> <parentEmail> '<memberJsonArrayString>'
+
 const fs = require('fs');
 const path = require('path');
 
-const args = process.argv.slice(2);
-const familyId = args[0];
-const parentEmail = args[1];
-const memberJsonString = args[2];
+const [familyId, parentEmail, memberJsonString] = process.argv.slice(2);
 
-const members = JSON.parse(memberJsonString);
+if (!familyId || !parentEmail || !memberJsonString) {
+  console.error("❌ Missing required arguments.");
+  process.exit(1);
+}
+
+let members;
+try {
+  members = JSON.parse(memberJsonString);
+  if (!Array.isArray(members)) throw new Error("Members must be an array.");
+} catch (err) {
+  console.error("❌ Failed to parse member JSON:", err.message);
+  process.exit(1);
+}
+
 const now = new Date().toISOString();
-
 const queuePath = path.join(__dirname, 'queue', 'ready_to_email.json');
 
-// Load queue
+// Load existing queue
 let data = { families: {} };
 if (fs.existsSync(queuePath)) {
   try {
@@ -102,13 +151,18 @@ if (fs.existsSync(queuePath)) {
   }
 }
 
-// Add or update entry
+// Add or update family entry
 data.families[familyId] = {
   parent_email: parentEmail,
   members,
   timestamp: now
 };
 
-// Save file
-fs.writeFileSync(queuePath, JSON.stringify(data, null, 2));
-console.log(`✅ Added/updated ${familyId} in ready_to_email.json`);
+// Write back to file
+try {
+  fs.writeFileSync(queuePath, JSON.stringify(data, null, 2));
+  console.log(`✅ Family '${familyId}' added to email queue with ${members.length} member(s).`);
+} catch (err) {
+  console.error("❌ Failed to write to queue file:", err.message);
+  process.exit(1);
+}
