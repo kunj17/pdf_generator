@@ -18,6 +18,9 @@ on:
       family_id:
         description: "Family Tag ID"
         required: true
+      parent_email:
+        description: "Parent Email"
+        required: true
 
 jobs:
   generate-pdf:
