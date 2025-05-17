@@ -44,11 +44,11 @@ jobs:
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
 
-      - name: Upload filled PDF as GitHub Artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: waiver-${{ github.event.inputs.unique_id }}
-          path: filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
+      - name: Commit the PDF to the repo
+        run: |
+          git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
+          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
+          git push
 
 
       - name: Ensure Ledger JSON Exists
