@@ -13,7 +13,6 @@ if (!NAME || NAME === 'NA' || !INITIALS || INITIALS === 'NA' || !UNIQUE_ID || UN
   process.exit(1);
 }
 
-
 // Constants
 const INPUT_PDF_PATH = path.join(__dirname, 'pdf-template', 'Walkathon_fillable.pdf');
 const OUTPUT_DIR = path.join(__dirname, 'filled');
@@ -23,29 +22,31 @@ const REGION = 'Southwest';
 
 async function run() {
   try {
-    // Load input PDF
+    // Load template
     const existingPdfBytes = fs.readFileSync(INPUT_PDF_PATH);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc.getForm();
+
+    // Helper for safe field access
     const field = (name) => {
-    try {
-      return form.getTextField(name);
-    } catch {
-      console.warn(`⚠️ Missing form field: ${name}`);
-      return null;
-    }
-  };
+      try {
+        return form.getTextField(name);
+      } catch {
+        console.warn(`⚠️ Missing form field: ${name}`);
+        return null;
+      }
+    };
 
-  field('text_1dphn')?.setText(IS_MINOR === 'true' ? `${NAME} (Minor)` : NAME);
-  field('text_2rdqb')?.setText(INITIALS);
-  field('text_3vtax')?.setText(WALK_CENTER);
-  field('text_4eufu')?.setText(REGION);
+    // Fill form fields
+    field('text_1dphn')?.setText(IS_MINOR === 'true' ? `${NAME} (Minor)` : NAME);
+    field('text_2rdqb')?.setText(INITIALS);
+    field('text_3vtax')?.setText(WALK_CENTER);
+    field('text_4eufu')?.setText(REGION);
 
-
-    // Flatten field and save
-    field.flatten();
+    // Flatten and save
+    form.flatten();
     const pdfBytes = await pdfDoc.save();
 
-    // Ensure output folder exists
     if (!fs.existsSync(OUTPUT_DIR)) {
       fs.mkdirSync(OUTPUT_DIR, { recursive: true });
     }
