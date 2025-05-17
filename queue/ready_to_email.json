@@ -1,17 +1,3 @@
 {
-  "families": {
-    "family_20250517T080719925Z": {
-      "parent_email": "thekunjpatel@gmail.com",
-      "members": [
-        {
-          "name": "Kemal Patel",
-          "initials": "KP",
-          "is_minor": false,
-          "unique_id": "Kemal_Patel_20250517T080719931Z_0",
-          "pdf": "Waiver_Kemal_Patel_20250517T080719931Z_0.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T08:07:30.597Z"
-    }
-  }
+  "families": {}
 }
