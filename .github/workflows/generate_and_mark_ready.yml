@@ -41,8 +41,19 @@ jobs:
       - name: Install Dependencies
         run: npm install pdf-lib
 
-      # ✅ Skip this step for BULK queue updates (i.e., unique_id = NA)
-      - name: Generate Individual PDF (only if valid)
+      - name: Debug Inputs
+        run: |
+          echo "NAME=$NAME"
+          echo "INITIALS=$INITIALS"
+          echo "IS_MINOR=$IS_MINOR"
+          echo "UNIQUE_ID=$UNIQUE_ID"
+        env:
+          NAME: ${{ github.event.inputs.name }}
+          INITIALS: ${{ github.event.inputs.initials }}
+          IS_MINOR: ${{ github.event.inputs.is_minor }}
+          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
+
+      - name: Generate Individual PDF (if applicable)
         if: github.event.inputs.unique_id != 'NA'
         run: |
           node fill.js "$NAME" "$INITIALS" "$IS_MINOR" "$UNIQUE_ID"
@@ -52,7 +63,7 @@ jobs:
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
 
-      - name: Commit generated PDF (only if valid)
+      - name: Commit generated PDF (if applicable)
         if: github.event.inputs.unique_id != 'NA'
         run: |
           git config --global user.email "github-actions@github.com"
