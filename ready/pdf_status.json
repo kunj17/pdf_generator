@@ -1,3 +1,17 @@
 {
-  "families": {}
+  "families": {
+    "<family_id>": {
+      "parent_email": "example@example.com",
+      "members": [
+        {
+          "name": "Participant Name",
+          "pdf": "Waiver_<UniqueID>.pdf",
+          "status": "ready"
+        }
+        // ... more members
+      ],
+      "emailed": false
+    },
+    // ... more families
+  }
 }
