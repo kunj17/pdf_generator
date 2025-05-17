@@ -8,6 +8,7 @@ const args = process.argv.slice(2);
 const familyId = args[0];
 const uniqueId = args[1];
 const name = args[2];
+const parentEmail = process.env.PARENT_EMAIL || null;  // ✅ new line
 
 const ledgerPath = path.join(__dirname, 'ready', 'pdf_status.json');
 const pdfFile = `Waiver_${uniqueId}.pdf`;
@@ -28,10 +29,12 @@ try {
 
 if (!data.families[familyId]) {
   data.families[familyId] = {
-    parent_email: null, // Optional: can be filled in another pass
+    parent_email: parentEmail, // ✅ store email here if new family
     members: [],
     emailed: false
   };
+} else if (!data.families[familyId].parent_email && parentEmail) {
+  data.families[familyId].parent_email = parentEmail; // ✅ backfill if previously null
 }
 
 const members = data.families[familyId].members;
