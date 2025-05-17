@@ -1,24 +1,3 @@
 {
-  "families": {
-    "family_20250517T075743527Z": {
-      "parent_email": "thekunjpatel@gmail.com",
-      "members": [
-        {
-          "name": "Hemal Patel",
-          "initials": "HP",
-          "is_minor": false,
-          "unique_id": "Hemal_Patel_20250517T075743530Z_0",
-          "pdf": "Waiver_Hemal_Patel_20250517T075743530Z_0.pdf"
-        },
-        {
-          "name": "Samarth Patel- (Minor)",
-          "initials": "HP",
-          "is_minor": true,
-          "unique_id": "Samarth_Patel-_20250517T075743530Z_1",
-          "pdf": "Waiver_Samarth_Patel-_20250517T075743530Z_1.pdf"
-        }
-      ],
-      "timestamp": "2025-05-17T07:57:54.399Z"
-    }
-  }
+  "families": {}
 }
