@@ -26,7 +26,7 @@ on:
         required: true
 
 jobs:
-  generate-pdf:
+  generate-pdf-and-queue:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,9 @@ jobs:
       - name: Install Dependencies
         run: npm install pdf-lib
 
-      - name: Generate PDF
+      # ✅ Skip this step for BULK queue updates (i.e., unique_id = NA)
+      - name: Generate Individual PDF (only if valid)
+        if: github.event.inputs.unique_id != 'NA'
         run: |
           node fill.js "$NAME" "$INITIALS" "$IS_MINOR" "$UNIQUE_ID"
         env:
@@ -50,18 +52,15 @@ jobs:
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
 
-      - name: Commit generated PDF to repo
+      - name: Commit generated PDF (only if valid)
+        if: github.event.inputs.unique_id != 'NA'
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          
           git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
-          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}" || echo "✅ No PDF changes to commit"
-          
-          git pull origin main --rebase
+          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
+          git pull --rebase
           git push
-
-
 
       - name: Add Family to Email Queue
         run: |
@@ -72,13 +71,11 @@ jobs:
           PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
           MEMBER_JSON: ${{ github.event.inputs.member_json }}
 
-
-      - name: Commit updated queue
+      - name: Commit updated email queue
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          git pull origin main --rebase  # ✅ Add this line
           git add queue/ready_to_email.json
           git commit -m "🆕 Add ${{ github.event.inputs.family_id }} to email queue"
+          git pull --rebase
           git push
-
