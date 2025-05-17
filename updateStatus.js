@@ -3,12 +3,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const args = process.argv.slice(2);
 const familyId = args[0];
 const uniqueId = args[1];
 const name = args[2];
-const parentEmail = process.env.PARENT_EMAIL || null;  // ✅ new line
+const parentEmail = process.env.PARENT_EMAIL || null;
 
 const ledgerPath = path.join(__dirname, 'ready', 'pdf_status.json');
 const pdfFile = `Waiver_${uniqueId}.pdf`;
@@ -27,19 +28,22 @@ try {
   process.exit(1);
 }
 
+// Initialize family block if missing
 if (!data.families[familyId]) {
   data.families[familyId] = {
-    parent_email: parentEmail, // ✅ store email here if new family
+    parent_email: parentEmail,
     members: [],
-    emailed: false
+    emailed: false,
+    last_sent_fingerprint: null
   };
 } else if (!data.families[familyId].parent_email && parentEmail) {
-  data.families[familyId].parent_email = parentEmail; // ✅ backfill if previously null
+  data.families[familyId].parent_email = parentEmail;
 }
 
-const members = data.families[familyId].members;
+const family = data.families[familyId];
+const members = family.members;
 
-// Check if already exists
+// Update or insert member
 const existing = members.find(m => m.pdf === pdfFile);
 if (!existing) {
   members.push({ name, pdf: pdfFile, status: 'ready' });
@@ -47,5 +51,23 @@ if (!existing) {
   existing.status = 'ready';
 }
 
+// Compute new fingerprint based on current state
+function computeFingerprint(email, members) {
+  const key = email + '|' + members.map(m => m.name).sort().join('|');
+  return crypto.createHash('md5').update(key).digest('hex');
+}
+
+const newFingerprint = computeFingerprint(family.parent_email, members);
+
+// Check if fingerprint changed
+if (family.last_sent_fingerprint !== newFingerprint) {
+  console.log(`🆕 Fingerprint changed. Marking ${familyId} for re-email.`);
+  family.emailed = false;
+  family.last_sent_fingerprint = newFingerprint;
+} else {
+  console.log(`➖ No fingerprint change. ${familyId} remains emailed=${family.emailed}`);
+}
+
+// Write final result
 fs.writeFileSync(ledgerPath, JSON.stringify(data, null, 2));
 console.log(`✅ Updated ledger with ${pdfFile}`);
