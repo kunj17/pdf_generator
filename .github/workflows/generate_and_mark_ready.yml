@@ -1,4 +1,4 @@
-name: Generate Waiver PDF and Update Status Ledger
+name: Generate Waiver PDF and Add to Email Queue
 
 on:
   workflow_dispatch:
@@ -20,6 +20,9 @@ on:
         required: true
       parent_email:
         description: "Parent Email"
+        required: true
+      member_json:
+        description: "JSON array of member objects"
         required: true
 
 jobs:
@@ -46,7 +49,7 @@ jobs:
           INITIALS: ${{ github.event.inputs.initials }}
           IS_MINOR: ${{ github.event.inputs.is_minor }}
           UNIQUE_ID: ${{ github.event.inputs.unique_id }}
-          
+
       - name: Commit generated PDF to repo
         run: |
           git config --global user.email "github-actions@github.com"
@@ -55,34 +58,19 @@ jobs:
           git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
           git push
 
-
-      - name: Ensure Ledger JSON Exists
+      - name: Add Family to Email Queue
         run: |
-          mkdir -p ready
-          if [ ! -f ready/pdf_status.json ]; then
-            echo '{ "families": {} }' > ready/pdf_status.json
-          fi
-
-      - name: Update Ledger File
-        run: |
-          node updateStatus.js "$FAMILY_ID" "$UNIQUE_ID" "$NAME"
+          mkdir -p queue
+          node updateQueueStatus.js "$FAMILY_ID" "$PARENT_EMAIL" "$MEMBER_JSON"
         env:
           FAMILY_ID: ${{ github.event.inputs.family_id }}
-          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
-          NAME: ${{ github.event.inputs.name }}
           PARENT_EMAIL: ${{ github.event.inputs.parent_email }}
+          MEMBER_JSON: ${{ github.event.inputs.member_json }}
 
-      - name: Encrypt ledger with XOR+Base64
-        run: node encryptJson.js
-        env:
-          LEDGER_PASSPHRASE: ${{ secrets.LEDGER_PASSPHRASE }}
-
-      - name: Commit and Push Updated Ledger
+      - name: Commit updated queue
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add ready/pdf_status.json.enc
-          git commit -m "Update ledger for $UNIQUE_ID"
+          git add queue/ready_to_email.json
+          git commit -m "🆕 Add ${{ github.event.inputs.family_id }} to email queue"
           git push
-        env:
-          UNIQUE_ID: ${{ github.event.inputs.unique_id }}
