@@ -53,13 +53,6 @@ jobs:
           git push
 
 
-      - name: Commit the PDF to the repo
-        run: |
-          git add filled/Waiver_${{ github.event.inputs.unique_id }}.pdf
-          git commit -m "Add waiver PDF for ${{ github.event.inputs.unique_id }}"
-          git push
-
-
       - name: Ensure Ledger JSON Exists
         run: |
           mkdir -p ready
