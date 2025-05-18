@@ -1,3 +1,17 @@
 {
-  "families": {}
+  "families": {
+    "family_20250518T000319332Z": {
+      "parent_email": "Amit1691@gmail.com",
+      "members": [
+        {
+          "name": "Amit Bhatt",
+          "initials": "AB",
+          "is_minor": false,
+          "unique_id": "Amit_Bhatt_20250518T000319337Z_0",
+          "pdf": "Waiver_Amit_Bhatt_20250518T000319337Z_0.pdf"
+        }
+      ],
+      "timestamp": "2025-05-18T00:03:30.547Z"
+    }
+  }
 }
